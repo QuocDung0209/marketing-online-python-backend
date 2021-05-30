@@ -5,10 +5,20 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = ">=3.6.2,<4.0"
+fastapi = "^0.65.1"
+SQLAlchemy = "^1.4.17"
+psycopg2-binary = "^2.8.6"
+uvicorn = "^0.13.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+mypy = "^0.812"
+sqlalchemy-stubs = "^0.4"
+flake8 = "^3.9.2"
+autoflake = "^1.4"
+isort = "^5.8.0"
+black = "^21.5b1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
