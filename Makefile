@@ -24,3 +24,12 @@ git-log:
 
 config-git-log:
 	git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+lint:
+	bash scripts/lint.sh
+
+format:
+	bash scripts/format.sh
+
+format-import:
+	bash scripts/format-imports.sh
