@@ -6,6 +6,10 @@ clean:
 run:
 	uvicorn app.main:app --reload
 
+env:
+	bash scripts/environment.sh
+	@echo "Generating .env ... done"
+
 # On Terminal type: make module module_name
 module:
 	 @mkdir $(api-path)/$(filter-out $@,$(MAKECMDGOALS))
