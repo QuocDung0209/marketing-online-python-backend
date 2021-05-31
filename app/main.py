@@ -1,3 +1,5 @@
+from starlette.middleware.cors import CORSMiddleware
+
 from app.core.application import ApplicationBase
 from app.core.config import settings
 
@@ -15,3 +17,13 @@ app = ApplicationBase(
     debug=False,
     version="1.0",
 )
+
+# Set all CORS enabled origins
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
