@@ -1,5 +1,8 @@
 api-path = app/api/api_v1
 
+clean:
+	find . -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
+
 run:
 	uvicorn app.main:app --reload
 
