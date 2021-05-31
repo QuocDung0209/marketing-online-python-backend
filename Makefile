@@ -1,3 +1,24 @@
+api-path = app/api/api_v1
+
+run:
+	uvicorn app.main:app --reload
+
+# On Terminal type: make module module_name
+module:
+	 @mkdir $(api-path)/$(filter-out $@,$(MAKECMDGOALS))
+	 @echo "Creating directory $(api-path)/$(filter-out $@,$(MAKECMDGOALS)) ... done"
+	 @touch $(api-path)/$(filter-out $@,$(MAKECMDGOALS))/__init__.py
+	 @echo "Generating $(api-path)/$(filter-out $@,$(MAKECMDGOALS))/__init__.py ... done"
+	 @touch $(api-path)/$(filter-out $@,$(MAKECMDGOALS))/repository.py
+	 @echo "Generating $(api-path)/$(filter-out $@,$(MAKECMDGOALS))/repository.py ... done"
+	 @touch $(api-path)/$(filter-out $@,$(MAKECMDGOALS))/service.py
+	 @echo "Generating $(api-path)/$(filter-out $@,$(MAKECMDGOALS))/service.py ... done"
+	 @touch $(api-path)/$(filter-out $@,$(MAKECMDGOALS))/endpoints.py
+	 @echo "Generating $(api-path)/$(filter-out $@,$(MAKECMDGOALS))/endpoints.py ... done" 
+
+%:
+	@:
+
 git-log:
 	git log --oneline --graph --color --all --decorate
 
