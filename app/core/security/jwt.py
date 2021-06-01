@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Union
 
 from jose import jwt
+from pydantic import ValidationError
 
 from app.core.config import settings
 from app.schemas.jwt import JWTMeta, JWTUser
@@ -37,3 +38,20 @@ def create_access_token(
         expires_delta=expires_delta,
         subject=str(subject),
     )
+
+
+def get_user_from_token(token: str, secret_key: str) -> JWTUser:
+    try:
+        return JWTUser(**jwt.decode(token, secret_key, algorithms=[ALGORITHM]))
+    except jwt.JWTError as decode_error:
+        raise ValueError("Unable to decode JWT token") from decode_error
+    except ValidationError as validation_error:
+        raise ValueError("Malformed payload in token") from validation_error
+
+
+def get_user_id_from_token(token: str, secret_key: str) -> str:
+    return get_user_from_token(token, secret_key).id
+
+
+def get_username_from_token(token: str, secret_key: str) -> str:
+    return get_user_from_token(token, secret_key).username

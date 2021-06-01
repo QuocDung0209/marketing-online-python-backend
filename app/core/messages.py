@@ -2,3 +2,5 @@
 
 INVALID_ACCOUNT = "Incorrect email/username or password"
 INACTIVE_USER = "Inactive user"
+USER_NOT_FOUND = "User not found"
+USER_NOT_EXISTS = "The user with this username already exists in the system."
