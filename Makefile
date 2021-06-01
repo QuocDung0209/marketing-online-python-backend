@@ -10,6 +10,15 @@ env:
 	bash scripts/environment.sh
 	@echo "Generating .env ... done"
 
+migration-script:
+	alembic revision --autogenerate -m "$(filter-out $@,$(MAKECMDGOALS))"
+
+upgrade:
+	alembic upgrade head
+
+downgrade:
+	alembic downgrade head
+
 # On Terminal type: make module module_name
 module:
 	 @mkdir $(api-path)/$(filter-out $@,$(MAKECMDGOALS))
