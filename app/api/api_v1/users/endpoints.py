@@ -74,3 +74,20 @@ def read_user_me(
     Get current user.
     """
     return current_user
+
+
+@router.get("/{user_id}", response_model=schemas.User)
+def read_user_by_id(
+    user_id: int,
+    current_user: models.User = Depends(depends.get_current_active_user),
+    db: Session = Depends(depends.get_db),
+) -> Any:
+    """
+    Get a specific user by id.
+    """
+    user = crud.user.get(db, id=user_id)
+    if user == current_user:
+        return user
+    if not crud.user.is_superuser(current_user):
+        raise HTTPException(status_code=400, detail=NOT_ENOUGH_PRIVILEGES)
+    return user
