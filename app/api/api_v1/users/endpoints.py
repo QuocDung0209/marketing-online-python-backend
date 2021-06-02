@@ -14,6 +14,20 @@ from .service import create_user as create_user_service
 router = APIRouter()
 
 
+@router.get("/", response_model=List[schemas.User])
+def read_users(
+    db: Session = Depends(depends.get_db),
+    skip: int = 0,
+    limit: int = 100,
+    current_user: models.User = Depends(depends.get_current_active_superuser),
+) -> Any:
+    """
+    Retrieve users.
+    """
+    users = crud.user.get_all(db, skip=skip, limit=limit)
+    return users
+
+
 @router.post("/", response_model=schemas.User)
 async def create_user(
     *,
