@@ -63,3 +63,14 @@ def update_user_me(
         user_in.email = email
     user = crud.user.update(db, db_obj=current_user, obj_in=user_in)
     return user
+
+
+@router.get("/me", response_model=schemas.User)
+def read_user_me(
+    db: Session = Depends(depends.get_db),
+    current_user: models.User = Depends(depends.get_current_active_user),
+) -> Any:
+    """
+    Get current user.
+    """
+    return current_user
