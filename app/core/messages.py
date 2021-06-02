@@ -1,5 +1,6 @@
 # API response messages
 
+INVALID_TOKEN = "Invalid token"
 INVALID_ACCOUNT = "Incorrect email/username or password"
 INACTIVE_USER = "Inactive user"
 USER_NOT_FOUND = "User not found"

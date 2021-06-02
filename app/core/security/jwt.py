@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union
 
 from jose import jwt
 from pydantic import ValidationError
@@ -40,6 +40,19 @@ def create_access_token(
     )
 
 
+def generate_password_reset_token(email: str) -> str:
+    delta = timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
+    now = datetime.utcnow()
+    expires = now + delta
+    exp = expires.timestamp()
+    encoded_jwt = jwt.encode(
+        {"exp": exp, "nbf": now, "sub": email},
+        settings.SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
+    return encoded_jwt
+
+
 def get_user_from_token(token: str, secret_key: str) -> JWTUser:
     try:
         return JWTUser(**jwt.decode(token, secret_key, algorithms=[ALGORITHM]))
@@ -55,3 +68,11 @@ def get_user_id_from_token(token: str, secret_key: str) -> str:
 
 def get_username_from_token(token: str, secret_key: str) -> str:
     return get_user_from_token(token, secret_key).username
+
+
+def verify_password_reset_token(token: str) -> Optional[str]:
+    try:
+        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_token["email"]
+    except jwt.JWTError:
+        return None
