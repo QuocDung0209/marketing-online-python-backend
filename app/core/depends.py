@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status
 from starlette import status
 
 from app import crud, models
-from app.core.messages import INACTIVE_USER
+from app.core.messages import INACTIVE_USER, NOT_ENOUGH_PRIVILEGES
 from app.db.session import SessionLocal
 
 from .security.authentication import get_current_user_authorizer
@@ -33,6 +33,6 @@ def get_current_active_superuser(
     if not crud.user.is_superuser(current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="The user doesn't have enough privileges",
+            detail=NOT_ENOUGH_PRIVILEGES,
         )
     return current_user

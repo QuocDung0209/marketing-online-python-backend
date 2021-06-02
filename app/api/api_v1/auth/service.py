@@ -39,27 +39,21 @@ def login(db: Session, user_login: UserLoginIn):
 
 
 async def recover_password(db: Session, email: str):
-    try:
-        user = crud.user.get_by_email(db, email=email)
+    user = crud.user.get_by_email(db, email=email)
 
-        if not user:
-            raise HTTPException(
-                status_code=404,
-                detail=USER_NOT_EXISTS,
-            )
-        password_reset_token = generate_password_reset_token(email=email)
-        await send_reset_password_email(
-            email_to=user.email, email=email, token=password_reset_token
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail=USER_NOT_EXISTS,
         )
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"message": "Password recovery email sent"},
-        )
-    except Exception as e:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": str(e)},
-        )
+    password_reset_token = generate_password_reset_token(email=email)
+    await send_reset_password_email(
+        email_to=user.email, email=email, token=password_reset_token
+    )
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"message": "Password recovery email sent"},
+    )
 
 
 def reset_password(db: Session, token: str, new_password: str):

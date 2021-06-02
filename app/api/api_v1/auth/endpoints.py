@@ -26,7 +26,7 @@ def login(
     return login_service(db, user_login)
 
 
-@router.post("/password-recovery/{email}", response_model=Any)
+@router.post("/password-recovery/{email}", response_model=Message)
 async def recover_password(email: str, db: Session = Depends(depends.get_db)) -> Any:
     """
     Password Recovery will send an email for user to reset password.
