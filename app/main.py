@@ -4,13 +4,13 @@ from app.api.api_v1.api import api_router
 from app.core.application import ApplicationBase
 from app.core.config import settings
 
-# from app.models import models
+# from app.db.base import Base
 
 # from app.db.session import engine
 
 # Create all tables in the database.
 # Comment this out if you using migrations.
-# models.Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = ApplicationBase(
     title=settings.PROJECT_NAME,
