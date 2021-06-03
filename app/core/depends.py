@@ -1,22 +1,18 @@
-from typing import Generator
-
 from fastapi import Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app import crud, models
 from app.core.messages import INACTIVE_USER, NOT_ENOUGH_PRIVILEGES
-from app.db.session import SessionLocal
+from app.db.session import async_session
 
 from .security.authentication import get_current_user_authorizer
 
 
 # Dependency to get DB session.
-def get_db() -> Generator:
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        db.close()
+async def get_session() -> AsyncSession:
+    async with async_session() as session:
+        yield session
 
 
 def get_current_active_user(

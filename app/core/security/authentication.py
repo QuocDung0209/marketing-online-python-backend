@@ -1,14 +1,15 @@
-from typing import Callable, Generator, Optional
+from typing import Callable, Optional
 
 from fastapi import Depends, HTTPException, Security
 from fastapi.security import APIKeyHeader
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from starlette import requests, status
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import crud
 from app.core.config import settings
-from app.db.session import SessionLocal
+from app.db.session import async_session
 
 from .jwt import get_user_id_from_token
 
@@ -16,12 +17,9 @@ HEADER_KEY = "Authorization"
 
 
 # Dependency to get DB session.
-def get_db() -> Generator:
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        db.close()
+async def get_session() -> AsyncSession:
+    async with async_session() as session:
+        yield session
 
 
 class RWAPIKeyHeader(APIKeyHeader):
@@ -78,12 +76,12 @@ def _get_authorization_header_retriever(
 
 
 async def _get_current_user(
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_session),
     token: str = Depends(_get_authorization_header_retriever()),
 ) -> Optional[str]:
     try:
         user_id = get_user_id_from_token(token, settings.SECRET_KEY)
-        user = crud.user.get(db, id=user_id)
+        user = await crud.user.get(db, id=user_id)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
