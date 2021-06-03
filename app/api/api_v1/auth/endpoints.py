@@ -1,9 +1,10 @@
 from typing import Any
 
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.api_v1.auth.model import UserLoginIn, UserLoginOut
+from app.api.api_v1.auth.model import (ResetPasswordPayload, UserLoginIn,
+                                       UserLoginOut)
 from app.core import depends
 from app.schemas.message import Message
 
@@ -38,11 +39,10 @@ async def recover_password(
 
 @router.post("/reset-password/", response_model=Message)
 async def reset_password(
-    token: str = Body(...),
-    new_password: str = Body(...),
+    payload: ResetPasswordPayload,
     db: AsyncSession = Depends(depends.get_session),
 ) -> Any:
     """
     Reset password
     """
-    return await reset_password_service(db, token, new_password)
+    return await reset_password_service(db, payload.token, payload.new_password)

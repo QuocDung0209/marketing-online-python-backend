@@ -1,9 +1,10 @@
 from typing import Optional
 
+from fastapi_camelcase import CamelModel
 from pydantic import BaseModel
 
 
-class Token(BaseModel):
+class Token(CamelModel):
     access_token: str
     token_type: str
 

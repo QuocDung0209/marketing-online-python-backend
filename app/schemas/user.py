@@ -1,10 +1,11 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from fastapi_camelcase import CamelModel
+from pydantic import EmailStr
 
 
 # Shared properties
-class UserBase(BaseModel):
+class UserBase(CamelModel):
     email: Optional[EmailStr] = None
     username: Optional[str] = None
     is_active: Optional[bool] = True
