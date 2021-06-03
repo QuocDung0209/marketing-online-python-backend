@@ -51,24 +51,6 @@ async def send_reset_password_email(email_to: str, email: str, token: str) -> No
     )
 
 
-async def send_new_account_email(email_to: str, username: str, password: str) -> None:
-    project_name = settings.PROJECT_NAME
-    subject = f"{project_name} - New account for user {username}"
-    with open(Path(settings.EMAIL_TEMPLATES_DIR) / "new_account.html") as f:
-        template_str = f.read()
-    link = settings.SERVER_HOST
-    email_template = template_str.format(
-        project_name=settings.PROJECT_NAME,
-        username=username,
-        password=password,
-        email=email_to,
-        link=link,
-    )
-    await send_email(
-        subject=subject, email_to=[email_to], email_template=email_template
-    )
-
-
 def convert_datetime_to_realworld(dt: datetime) -> str:
     return dt.replace(tzinfo=datetime.timezone.utc).isoformat().replace("+00:00", "Z")
 
