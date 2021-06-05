@@ -1,11 +1,11 @@
 from typing import Any, List
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
-from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud, models, schemas
+from app.api.api_v1.users.model import UserUpdatePayload
 from app.core import depends
 from app.core.messages import NOT_ENOUGH_PRIVILEGES
 
@@ -45,9 +45,7 @@ async def create_user(
 async def update_user_me(
     *,
     db: AsyncSession = Depends(depends.get_session),
-    password: str = Body(None),
-    full_name: str = Body(None),
-    email: EmailStr = Body(None),
+    payload: UserUpdatePayload,
     current_user: models.User = Depends(depends.get_current_active_user),
 ) -> Any:
     """
@@ -55,12 +53,12 @@ async def update_user_me(
     """
     current_user_data = jsonable_encoder(current_user)
     user_in = schemas.UserUpdate(**current_user_data)
-    if password is not None:
-        user_in.password = password
-    if full_name is not None:
-        user_in.full_name = full_name
-    if email is not None:
-        user_in.email = email
+    if payload.password is not None:
+        user_in.password = payload.password
+    if payload.full_name is not None:
+        user_in.full_name = payload.full_name
+    if payload.email is not None:
+        user_in.email = payload.email
     user = await crud.user.update(db, db_obj=current_user, obj_in=user_in)
     return user
 
