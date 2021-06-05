@@ -2,7 +2,8 @@ from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import UUID4, BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import Base
 
@@ -26,25 +27,29 @@ class BaseActions(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         self.model = model
 
-    def get_all(
-        self, db: Session, *, skip: int = 0, limit: int = 100
+    async def get_all(
+        self, db: AsyncSession, *, skip: int = 0, limit: int = 100
     ) -> List[ModelType]:
-        return db.query(self.model).offset(skip).limit(limit).all()
+        query = select(self.model).offset(skip).limit(limit)
+        result = await db.execute(query)
+        return result.scalars().all()
 
-    def get(self, db: Session, id: UUID4) -> Optional[ModelType]:
-        return db.query(self.model).filter(self.model.id == id).first()
+    async def get(self, db: AsyncSession, id: UUID4) -> Optional[ModelType]:
+        query = select(self.model).filter(self.model.id == int(id))
+        result = await db.execute(query)
+        return result.scalars().first()
 
-    def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
+    async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)
         db_obj = self.model(**obj_in_data)  # type: ignore
         db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
+        await db.commit()
+        await db.refresh(db_obj)
         return db_obj
 
-    def update(
+    async def update(
         self,
-        db: Session,
+        db: AsyncSession,
         *,
         db_obj: ModelType,
         obj_in: Union[UpdateSchemaType, Dict[str, Any]]
@@ -58,12 +63,12 @@ class BaseActions(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
         db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
+        await db.commit()
+        await db.refresh(db_obj)
         return db_obj
 
-    def remove(self, db: Session, *, id: UUID4) -> ModelType:
+    async def remove(self, db: AsyncSession, *, id: UUID4) -> ModelType:
         obj = db.query(self.model).get(id)
         db.delete(obj)
-        db.commit()
+        await db.commit()
         return obj

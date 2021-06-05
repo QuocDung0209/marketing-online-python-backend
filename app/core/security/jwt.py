@@ -62,7 +62,7 @@ def get_user_from_token(token: str, secret_key: str) -> JWTUser:
         raise ValueError("Malformed payload in token") from validation_error
 
 
-def get_user_id_from_token(token: str, secret_key: str) -> str:
+def get_user_id_from_token(token: str, secret_key: str) -> int:
     return get_user_from_token(token, secret_key).id
 
 

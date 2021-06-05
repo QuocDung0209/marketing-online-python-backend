@@ -3,7 +3,7 @@ from typing import Any, List
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from pydantic import EmailStr
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud, models, schemas
 from app.core import depends
@@ -15,8 +15,8 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[schemas.User])
-def read_users(
-    db: Session = Depends(depends.get_db),
+async def read_users(
+    db: AsyncSession = Depends(depends.get_session),
     skip: int = 0,
     limit: int = 100,
     current_user: models.User = Depends(depends.get_current_active_superuser),
@@ -24,14 +24,14 @@ def read_users(
     """
     Retrieve users.
     """
-    users = crud.user.get_all(db, skip=skip, limit=limit)
+    users = await crud.user.get_all(db, skip=skip, limit=limit)
     return users
 
 
 @router.post("/", response_model=schemas.User)
 async def create_user(
     *,
-    db: Session = Depends(depends.get_db),
+    db: AsyncSession = Depends(depends.get_session),
     user_in: schemas.UserCreate,
     current_user: models.User = Depends(depends.get_current_active_superuser),
 ) -> Any:
@@ -42,9 +42,9 @@ async def create_user(
 
 
 @router.put("/me", response_model=schemas.User)
-def update_user_me(
+async def update_user_me(
     *,
-    db: Session = Depends(depends.get_db),
+    db: AsyncSession = Depends(depends.get_session),
     password: str = Body(None),
     full_name: str = Body(None),
     email: EmailStr = Body(None),
@@ -61,13 +61,13 @@ def update_user_me(
         user_in.full_name = full_name
     if email is not None:
         user_in.email = email
-    user = crud.user.update(db, db_obj=current_user, obj_in=user_in)
+    user = await crud.user.update(db, db_obj=current_user, obj_in=user_in)
     return user
 
 
 @router.get("/me", response_model=schemas.User)
-def read_user_me(
-    db: Session = Depends(depends.get_db),
+async def read_user_me(
+    db: AsyncSession = Depends(depends.get_session),
     current_user: models.User = Depends(depends.get_current_active_user),
 ) -> Any:
     """
@@ -77,15 +77,15 @@ def read_user_me(
 
 
 @router.get("/{user_id}", response_model=schemas.User)
-def read_user_by_id(
+async def read_user_by_id(
     user_id: int,
     current_user: models.User = Depends(depends.get_current_active_user),
-    db: Session = Depends(depends.get_db),
+    db: AsyncSession = Depends(depends.get_session),
 ) -> Any:
     """
     Get a specific user by id.
     """
-    user = crud.user.get(db, id=user_id)
+    user = await crud.user.get(db, id=user_id)
     if user == current_user:
         return user
     if not crud.user.is_superuser(current_user):
@@ -94,9 +94,9 @@ def read_user_by_id(
 
 
 @router.put("/{user_id}", response_model=schemas.User)
-def update_user_by_user_id(
+async def update_user_by_user_id(
     *,
-    db: Session = Depends(depends.get_db),
+    db: AsyncSession = Depends(depends.get_session),
     user_id: int,
     user_in: schemas.UserUpdate,
     current_user: models.User = Depends(depends.get_current_active_superuser),
@@ -104,11 +104,11 @@ def update_user_by_user_id(
     """
     Update a user.
     """
-    user = crud.user.get(db, id=user_id)
+    user = await crud.user.get(db, id=user_id)
     if not user:
         raise HTTPException(
             status_code=404,
             detail="The user with this username does not exist in the system",
         )
-    user = crud.user.update(db, db_obj=user, obj_in=user_in)
+    user = await crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
